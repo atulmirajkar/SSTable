@@ -1,0 +1,16 @@
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\AVLTree.exe
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\AVLTree.deps.json
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\AVLTree.runtimeconfig.json
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\AVLTree.runtimeconfig.dev.json
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\AVLTree.dll
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\ref\AVLTree.dll
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\bin\Debug\net5.0\AVLTree.pdb
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.csproj.AssemblyReference.cache
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.AssemblyInfoInputs.cache
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.AssemblyInfo.cs
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.csproj.CoreCompileInputs.cache
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.dll
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\ref\AVLTree.dll
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.pdb
+C:\Users\atulm\Documents\work\dotnetcode\AVLTree\obj\Debug\net5.0\AVLTree.genruntimeconfig.cache
