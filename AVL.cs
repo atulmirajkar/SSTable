@@ -132,7 +132,86 @@ namespace AVLTree
             
             return node;
         }
+
+        private Node search(int value, Node node, out Node parentNode){
+            //exit condition
+            if(node == null)
+            {
+                parentNode = null;
+                return null;
+            }
+
+            if(node.value == value){
+                parentNode=node;
+                return node;
+            }
+
+            if(value < node.value){
+                return search(value, node.left, out parentNode);
+            } else{
+                return search(value, node.right, out parentNode);
+            }
+        }
        
+        private void delete(int value){
+            Node parentNode = null; 
+            Node nodeToDelete = search(value, root, out parentNode);
+            if(nodeToDelete == null || parentNode == null)
+                return;
+            
+            if(nodeToDelete.height == 1){
+                if(parentNode.left == nodeToDelete)
+                {
+                    parentNode.left = null;
+                }else{
+                    parentNode.right = null;
+                }
+                return;
+            }
+
+            if(nodeToDelete.left == null){
+                if(parentNode.left == nodeToDelete){
+                    parentNode.left = nodeToDelete.right;
+                }else{
+                    parentNode.right = nodeToDelete.right;
+                }
+                nodeToDelete.right = null;
+                return;
+            }
+
+            if(nodeToDelete.right == null){
+                if(parentNode.left == nodeToDelete){
+                    parentNode.left = nodeToDelete.left;
+                }else{
+                    parentNode.right = nodeToDelete.left;
+                }
+                nodeToDelete.left = null;
+                return;
+
+            }
+            
+
+            Node inOrderSuccNode = detatchSmallestInRight(nodeToDelete);
+            if(inOrderSuccNode == null){
+                //something went wrong
+                //just return
+                return;
+            }
+             
+        }
+        
+        private Node detatchSmallestInRight(Node node){
+            if(node == null || node.right == null)
+                return null;
+            Node parent = node; 
+            Node temp = node.right;
+            while(temp.left!=null)
+            {
+                parent = temp;
+                temp=temp.left;
+            }
+            return temp;
+        }
         private void preOrder(Node node){
             //exit condition 
             if(node == null)
@@ -142,6 +221,7 @@ namespace AVLTree
             preOrder(node.left);
             preOrder(node.right);
         }
+
 
         //public methods
         public void PreOrder()
