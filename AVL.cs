@@ -1,13 +1,10 @@
-using System.Threading;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System;
 namespace AVLTree
 {
     public class AVL{
 
         public class Node{
-            public Node left{get; set;}
+            public Node left { get; set; }
             public Node right{get; set;} 
             public int value{get; set;}
             
@@ -25,7 +22,7 @@ namespace AVLTree
         //todo implement size
         private int size{get; set;}
 
-        private void updateHeight(Node node){
+        private static void updateHeight(Node node){
             if(node == null)
                 return;
             
@@ -36,7 +33,7 @@ namespace AVLTree
             node.bf = leftHeight - rightHeight;   
         }
 
-        private Node rotateRight(Node node){
+        private static Node rotateRight(Node node){
             if(node == null)
                 return null;
             
@@ -56,7 +53,7 @@ namespace AVLTree
             return pivot;
         }
 
-        private Node rotateLeft(Node node){
+        private static Node rotateLeft(Node node){
             if(node == null)
                 return null;
             
@@ -77,7 +74,7 @@ namespace AVLTree
             return pivot;
         }
 
-        private Node rebalance(Node node, int value){
+        private static Node rebalance(Node node, int value){
             if(node == null)
                 return null;
 
@@ -105,10 +102,7 @@ namespace AVLTree
             }
             return null;
         }
-        public Node Insert(int value){
-            root = insert(value, root);
-            return root;
-        }
+       
 
         private Node insert(int value, Node node){
             //exit condition
@@ -138,11 +132,7 @@ namespace AVLTree
             
             return node;
         }
-
-        public void PreOrder(){
-            preOrder(root);
-        }
-
+       
         private void preOrder(Node node){
             //exit condition 
             if(node == null)
@@ -151,6 +141,18 @@ namespace AVLTree
             Console.WriteLine(node.value);
             preOrder(node.left);
             preOrder(node.right);
+        }
+
+        //public methods
+        public void PreOrder()
+        {
+            preOrder(root);
+        }
+
+        public Node Insert(int value)
+        {
+            root = insert(value, root);
+            return root;
         }
     }
 }

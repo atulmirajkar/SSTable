@@ -1,7 +1,6 @@
-﻿using System;
-namespace AVLTree
+﻿namespace AVLTree
 {
-    class behavior
+    class Treebehavior
     {
         static void Main(string[] args)
         {
