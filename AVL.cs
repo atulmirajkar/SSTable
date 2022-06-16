@@ -1,11 +1,14 @@
+using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Collections;
 using System;
 namespace AVLTree
 {
-    public class AVL<TKey, TValue>:IEnumerable<KeyValuePair<TKey, TValue>> where TKey:IComparable{
+    [Serializable]
+    public class AVL<TKey, TValue>:ISerializable,IEnumerable<KeyValuePair<TKey, TValue>> where TKey:IComparable{
 
-        public class Node{
+        [Serializable]
+        public class Node: ISerializable{
             public Node left { get; set; }
             public Node right{get; set;} 
             public TKey key{get; set;}
@@ -18,8 +21,27 @@ namespace AVLTree
                 this.value = value;
                 height = 1;
             }
-        }
 
+            public void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue("l",left,typeof(Node));
+                info.AddValue("r",left,typeof(Node));
+                info.AddValue("k",left,typeof(TKey));
+                info.AddValue("v",left,typeof(TValue));
+                info.AddValue("h",left,typeof(int));
+                info.AddValue("b",left,typeof(int));
+
+            }
+
+            public Node(SerializationInfo info, StreamingContext context){
+                left = (Node)info.GetValue("l",typeof(Node));
+                right = (Node)info.GetValue("r",typeof(Node));
+                key = (TKey)info.GetValue("k",typeof(TKey));
+                value = (TValue)info.GetValue("v",typeof(TValue));
+                height = (int)info.GetValue("h",typeof(int));
+                bf = (int)info.GetValue("b",typeof(int));
+            }
+        }
         private Node root{get; set;}
 
         //todo implement size
@@ -217,14 +239,14 @@ namespace AVLTree
             }
             return minResult;
         }
-        private void preOrder(Node node){
+        private void preorder(Node node){
             //exit condition 
             if(node == null)
                 return;
             
             Console.WriteLine(node.key+":"+node.value);
-            preOrder(node.left);
-            preOrder(node.right);
+            preorder(node.left);
+            preorder(node.right);
         }
 
         private IEnumerable<KeyValuePair<TKey, TValue>> inorder(Node node){
@@ -241,9 +263,9 @@ namespace AVLTree
         }
 
         //public methods
-        public void PreOrder()
+        public void Preorder()
         {
-            preOrder(root);
+            preorder(root);
         }
 
         public Node Insert(TKey key, TValue value)
@@ -266,6 +288,21 @@ namespace AVLTree
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
         {
            return inorder(root).GetEnumerator();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("r",root,typeof(Node));
+            info.AddValue("s",size,typeof(int));
+        }
+
+        public AVL(){
+
+        }
+
+        public AVL(SerializationInfo info, StreamingContext context){
+            root = (Node)info.GetValue("r",typeof(Node));
+            size = (int)info.GetValue("s",typeof(int));
         }
     }
 

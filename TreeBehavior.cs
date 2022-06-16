@@ -11,11 +11,11 @@ namespace AVLTree
             tree.Insert(10,100);
             tree.Insert(5,50);
             tree.Insert(7,70);
-            tree.PreOrder();
+            tree.Preorder();
 
             Console.WriteLine();
             tree.Delete(7);
-            tree.PreOrder();
+            tree.Preorder();
         
             Console.WriteLine("Using enumerator");
 
