@@ -5,7 +5,8 @@ using System;
 namespace AVLTree
 {
     [Serializable]
-    public class AVL<TKey, TValue>:ISerializable,IEnumerable<KeyValuePair<TKey, TValue>> where TKey:IComparable{
+    public class AVL<TKey, TValue>:ISerializable,IEnumerable<KeyValuePair<TKey, TValue>> 
+        where TKey:IComparable{
 
         [Serializable]
         public class Node: ISerializable{

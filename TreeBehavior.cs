@@ -1,5 +1,7 @@
-﻿using System;
+﻿using System.Runtime.Serialization.Formatters.Binary;
+using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace AVLTree
 {
@@ -22,6 +24,15 @@ namespace AVLTree
             foreach(KeyValuePair<int, int> kv in tree){
                 Console.WriteLine(kv.Key+":"+kv.Value);
             }
+
+            Console.WriteLine("serialization");
+            IFormatter bf = new BinaryFormatter();
+            SerializeHelper<int, int>.SerializeObject(tree,"serialTest",bf);
+            var deserialTree = (AVL<int,int>)SerializeHelper<int,int>.DeserializeObject("serialTest", bf);
+            foreach(KeyValuePair<int, int> kv in tree){
+                Console.WriteLine(kv.Key+":"+kv.Value);
+            }
+
         }
     }
 }
