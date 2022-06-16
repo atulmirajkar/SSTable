@@ -1,17 +1,20 @@
+using System.Collections.Generic;
+using System.Collections;
 using System;
 namespace AVLTree
 {
-    public class AVL{
+    public class AVL<TKey, TValue>:IEnumerable<KeyValuePair<TKey, TValue>> where TKey:IComparable{
 
         public class Node{
             public Node left { get; set; }
             public Node right{get; set;} 
-            public int value{get; set;}
-            
+            public TKey key{get; set;}
+            public TValue value{get; set;} 
             public int height{get; set;}
             public int bf { get; set; }
 
-            public Node(int value){
+            public Node(TKey key, TValue value){
+                this.key = key;
                 this.value = value;
                 height = 1;
             }
@@ -74,28 +77,28 @@ namespace AVLTree
             return pivot;
         }
 
-        private static Node rebalanceForInsert(Node node, int value){
+        private static Node rebalanceForInsert(Node node, TKey key){
             if(node == null)
                 return null;
 
             int balance = node.bf;
             //left - left case
             if(balance > 1){
-                if(value < node.left.value)
+                if(key.CompareTo(node.left.key) < 0)
                     return rotateRight(node);
                 
                 //left - right case
-                if(value > node.left.value){
+                if(key.CompareTo(node.left.key) > 0){
                     node.left = rotateLeft(node.left);
                     return rotateRight(node);
                 }
             }else if(balance < 1){
                 //right right case
-                if(value > node.right.value)
+                if(key.CompareTo(node.right.key) > 0)
                     return rotateLeft(node);
 
                 //right left case
-                if(value < node.right.value){
+                if(key.CompareTo(node.right.key) < 0){
                     node.right = rotateRight(node.right);
                     return rotateLeft(node);
                 }
@@ -104,22 +107,22 @@ namespace AVLTree
         }
        
 
-        private Node insert(int value, Node node){
+        private Node insert(TKey key, TValue value, Node node){
             //exit condition
             if(node == null){
-                return new Node(value);
+                return new Node(key, value);
             }
 
             //perform normal bst insertion
             //dont allow duplicates
-            if(node.value == value){
+            if(key.CompareTo(node.key)==0){
                 return node;
             }
-            if(value < node.value)
+            if(key.CompareTo(node.key) < 0)
             {
-                node.left = insert(value, node.left);
+                node.left = insert(key, value, node.left);
             }else{
-                node.right = insert(value, node.right);
+                node.right = insert(key, value, node.right);
             }
 
             //update height as we unwind the stack
@@ -127,23 +130,23 @@ namespace AVLTree
 
             //check whether bf within limits
             if(node.bf < -1 ||  node.bf > 1){
-                return rebalanceForInsert(node, value);
+                return rebalanceForInsert(node, key);
             }
             
             return node;
         }
-        private Node delete(int value, Node node)
+        private Node delete(TKey key, Node node)
         {
             //exit condition
             if (node == null)
                 return null;
             
-            if(value < node.value)
+            if(key.CompareTo(node.key) < 0 )
             {
-                node.left = delete(value, node.left);
-            }else if(value > node.value)
+                node.left = delete(key, node.left);
+            }else if(key.CompareTo(node.key) > 0)
             {
-                node.right = delete(value, node.right);
+                node.right = delete(key, node.right);
             }
             else
             {
@@ -157,9 +160,9 @@ namespace AVLTree
                 }
 
                 //node has 2 children - replace the node with inorder successor
-                int minInRight = minValue(node.right);
+                TKey minInRight = minkey(node.right);
                 //copy data to the node
-                node.value = minInRight;
+                node.key = minInRight;
                
                 //delete the inorder successor
                 node.right =  delete(minInRight, node.right);
@@ -204,13 +207,13 @@ namespace AVLTree
             return null;
         }
  
-        private int minValue(Node node)
+        private TKey minkey(Node node)
         {
-            int minResult = node.value;
+            TKey minResult = node.key;
             while(node.left != null)
             {
                 node = node.left;
-                minResult = node.value;
+                minResult = node.key;
             }
             return minResult;
         }
@@ -219,11 +222,23 @@ namespace AVLTree
             if(node == null)
                 return;
             
-            Console.WriteLine(node.value);
+            Console.WriteLine(node.key+":"+node.value);
             preOrder(node.left);
             preOrder(node.right);
         }
 
+        private IEnumerable<KeyValuePair<TKey, TValue>> inorder(Node node){
+            if(node == null)
+                yield break;
+            
+            foreach(KeyValuePair<TKey, TValue> kv in inorder(node.left))
+                yield return kv;
+            
+            yield return KeyValuePair.Create(node.key, node.value);
+
+            foreach(KeyValuePair<TKey, TValue> kv in inorder(node.right))
+                yield return kv;
+        }
 
         //public methods
         public void PreOrder()
@@ -231,16 +246,26 @@ namespace AVLTree
             preOrder(root);
         }
 
-        public Node Insert(int value)
+        public Node Insert(TKey key, TValue value)
         {
-            root = insert(value, root);
+            root = insert(key,value,root);
             return root;
         }
 
-        public void Delete(int value)
+        public void Delete(TKey key)
         {
             //important to assign to root, since we could be deleting root
-            root = delete(value, root);
+            root = delete(key, root);
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return inorder(root).GetEnumerator();
+        }
+
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+        {
+           return inorder(root).GetEnumerator();
         }
     }
 
