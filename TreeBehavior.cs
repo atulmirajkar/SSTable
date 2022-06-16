@@ -1,4 +1,6 @@
-﻿namespace AVLTree
+﻿using System;
+
+namespace AVLTree
 {
     class Treebehavior
     {
@@ -8,6 +10,10 @@
             tree.Insert(10);
             tree.Insert(5);
             tree.Insert(7);
+            tree.PreOrder();
+
+            Console.WriteLine();
+            tree.Delete(7);
             tree.PreOrder();
         }
     }

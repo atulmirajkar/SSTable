@@ -74,7 +74,7 @@ namespace AVLTree
             return pivot;
         }
 
-        private static Node rebalance(Node node, int value){
+        private static Node rebalanceForInsert(Node node, int value){
             if(node == null)
                 return null;
 
@@ -127,90 +127,92 @@ namespace AVLTree
 
             //check whether bf within limits
             if(node.bf < -1 ||  node.bf > 1){
-                return rebalance(node, value);
+                return rebalanceForInsert(node, value);
             }
             
             return node;
         }
-
-        private Node search(int value, Node node, out Node parentNode){
+        private Node delete(int value, Node node)
+        {
             //exit condition
-            if(node == null)
-            {
-                parentNode = null;
+            if (node == null)
                 return null;
-            }
-
-            if(node.value == value){
-                parentNode=node;
-                return node;
-            }
-
-            if(value < node.value){
-                return search(value, node.left, out parentNode);
-            } else{
-                return search(value, node.right, out parentNode);
-            }
-        }
-       
-        private void delete(int value){
-            Node parentNode = null; 
-            Node nodeToDelete = search(value, root, out parentNode);
-            if(nodeToDelete == null || parentNode == null)
-                return;
             
-            if(nodeToDelete.height == 1){
-                if(parentNode.left == nodeToDelete)
+            if(value < node.value)
+            {
+                node.left = delete(value, node.left);
+            }else if(value > node.value)
+            {
+                node.right = delete(value, node.right);
+            }
+            else
+            {
+                //we have found the node
+                if(node.left == null)
                 {
-                    parentNode.left = null;
-                }else{
-                    parentNode.right = null;
+                    return node.right;
+                }else if(node.right == null)
+                {
+                    return node.left;
                 }
-                return;
-            }
 
-            if(nodeToDelete.left == null){
-                if(parentNode.left == nodeToDelete){
-                    parentNode.left = nodeToDelete.right;
-                }else{
-                    parentNode.right = nodeToDelete.right;
-                }
-                nodeToDelete.right = null;
-                return;
-            }
-
-            if(nodeToDelete.right == null){
-                if(parentNode.left == nodeToDelete){
-                    parentNode.left = nodeToDelete.left;
-                }else{
-                    parentNode.right = nodeToDelete.left;
-                }
-                nodeToDelete.left = null;
-                return;
-
+                //node has 2 children - replace the node with inorder successor
+                int minInRight = minValue(node.right);
+                //copy data to the node
+                node.value = minInRight;
+               
+                //delete the inorder successor
+                node.right =  delete(minInRight, node.right);
             }
             
 
-            Node inOrderSuccNode = detatchSmallestInRight(nodeToDelete);
-            if(inOrderSuccNode == null){
-                //something went wrong
-                //just return
-                return;
-            }
-             
+            //update height and balance factor
+            updateHeight(node);
+
+            if (node.bf < -1 || node.bf > 1)
+                return  rebalanceForDelete(node);
+
+            return node;
+
         }
-        
-        private Node detatchSmallestInRight(Node node){
-            if(node == null || node.right == null)
+        private static Node rebalanceForDelete(Node node){
+            if(node == null)
                 return null;
-            Node parent = node; 
-            Node temp = node.right;
-            while(temp.left!=null)
-            {
-                parent = temp;
-                temp=temp.left;
+
+            int balance = node.bf;
+            //left - left case
+            if(balance > 1){
+                if(node.left?.bf >= 0)
+                    return rotateRight(node);
+                
+                //left - right case
+                if(node.left?.bf<0){
+                    node.left = rotateLeft(node.left);
+                    return rotateRight(node);
+                }
+            }else if(balance < 1){
+                //right right case
+                if(node.right?.bf<=0)
+                    return rotateLeft(node);
+
+                //right left case
+                if(node.right?.bf>0){
+                    node.right = rotateRight(node.right);
+                    return rotateLeft(node);
+                }
             }
-            return temp;
+            return null;
+        }
+ 
+        private int minValue(Node node)
+        {
+            int minResult = node.value;
+            while(node.left != null)
+            {
+                node = node.left;
+                minResult = node.value;
+            }
+            return minResult;
         }
         private void preOrder(Node node){
             //exit condition 
@@ -234,5 +236,12 @@ namespace AVLTree
             root = insert(value, root);
             return root;
         }
+
+        public void Delete(int value)
+        {
+            //important to assign to root, since we could be deleting root
+            root = delete(value, root);
+        }
     }
+
 }
