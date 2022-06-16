@@ -5,11 +5,11 @@ using System;
 namespace AVLTree
 {
     [Serializable]
-    public class AVL<TKey, TValue>:ISerializable,IEnumerable<KeyValuePair<TKey, TValue>> 
+    public class AVL<TKey, TValue>:IEnumerable<KeyValuePair<TKey, TValue>> 
         where TKey:IComparable{
 
         [Serializable]
-        public class Node: ISerializable{
+        public class Node{
             public Node left { get; set; }
             public Node right{get; set;} 
             public TKey key{get; set;}
@@ -23,25 +23,6 @@ namespace AVLTree
                 height = 1;
             }
 
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.AddValue("l",left,typeof(Node));
-                info.AddValue("r",left,typeof(Node));
-                info.AddValue("k",left,typeof(TKey));
-                info.AddValue("v",left,typeof(TValue));
-                info.AddValue("h",left,typeof(int));
-                info.AddValue("b",left,typeof(int));
-
-            }
-
-            public Node(SerializationInfo info, StreamingContext context){
-                left = (Node)info.GetValue("l",typeof(Node));
-                right = (Node)info.GetValue("r",typeof(Node));
-                key = (TKey)info.GetValue("k",typeof(TKey));
-                value = (TValue)info.GetValue("v",typeof(TValue));
-                height = (int)info.GetValue("h",typeof(int));
-                bf = (int)info.GetValue("b",typeof(int));
-            }
         }
         private Node root{get; set;}
 
@@ -295,15 +276,6 @@ namespace AVLTree
         {
             info.AddValue("r",root,typeof(Node));
             info.AddValue("s",size,typeof(int));
-        }
-
-        public AVL(){
-
-        }
-
-        public AVL(SerializationInfo info, StreamingContext context){
-            root = (Node)info.GetValue("r",typeof(Node));
-            size = (int)info.GetValue("s",typeof(int));
         }
     }
 

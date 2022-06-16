@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text.Json;
 
 namespace AVLTree
 {
@@ -32,6 +33,11 @@ namespace AVLTree
             foreach(KeyValuePair<int, int> kv in tree){
                 Console.WriteLine(kv.Key+":"+kv.Value);
             }
+
+
+            Console.WriteLine("json formatter");
+            string jsonString = JsonSerializer.Serialize<AVL<int,int>>(tree);
+            Console.WriteLine(jsonString);
 
         }
     }
