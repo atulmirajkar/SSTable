@@ -1,14 +1,12 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace AVLTree
 {
     class Treebehavior
     {
-        static void Main(string[] args)
+        async static Task Main(string[] args)
         {
             AVL<int, int> tree = new AVL<int, int>();
             tree.Insert(10,100);
@@ -27,18 +25,14 @@ namespace AVLTree
             }
 
             Console.WriteLine("serialization");
-            IFormatter bf = new BinaryFormatter();
-            SerializeHelper<int, int>.SerializeObject(tree,"serialTest",bf);
-            var deserialTree = (AVL<int,int>)SerializeHelper<int,int>.DeserializeObject("serialTest", bf);
-            foreach(KeyValuePair<int, int> kv in tree){
+            SerializeUtil<int, int>.serialize(tree,"./data","one");
+
+            AVL<int,int> deserialTree = await SerializeUtil<int, int>.deserialize("./data","one");
+            foreach(KeyValuePair<int, int> kv in deserialTree){
                 Console.WriteLine(kv.Key+":"+kv.Value);
             }
-
-
-            Console.WriteLine("json formatter");
-            string jsonString = JsonSerializer.Serialize<AVL<int,int>>(tree);
-            Console.WriteLine(jsonString);
-
+            
+            return;
         }
     }
 }
