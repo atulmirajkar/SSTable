@@ -25,9 +25,9 @@ namespace AVLTree
             }
 
             Console.WriteLine("serialization");
-            SerializeUtil<int, int>.serialize(tree,"./data","one");
+            SerializeUtil<int, int>.serializeKV(tree,"./data","one");
 
-            AVL<int,int> deserialTree = await SerializeUtil<int, int>.deserialize("./data","one");
+            AVL<int,int> deserialTree = await SerializeUtil<int, int>.deserializeKV("./data","one");
             foreach(KeyValuePair<int, int> kv in deserialTree){
                 Console.WriteLine(kv.Key+":"+kv.Value);
             }
