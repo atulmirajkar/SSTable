@@ -1,4 +1,4 @@
-namespace SSTables
+namespace Model
 {
     public class MyKeyValue<TKey, TValue>
     {

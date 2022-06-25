@@ -9,5 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AVLTree\AVLTree.csproj" />
+    <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
 </Project>

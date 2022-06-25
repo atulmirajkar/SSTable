@@ -1,20 +1,16 @@
-using System.IO;
-using System.Collections.Generic;
-using System;
 using System.Text.Json;
-using SSTables;
-using System.Threading.Tasks;
 using System.Text;
+using Model;
 
 namespace AVLTree{
     public class SerializeUtil<TKey, TValue> where TKey: IComparable{
-        public async static void serializeKV(AVL<TKey, TValue> avlObj,string path, string fileName){
+        public async static Task<bool> serializeKV(AVL<TKey, TValue> avlObj,string path, string fileName){
             if(string.IsNullOrEmpty(fileName)){
-                return;
+                return false;
             }
             //check if path exists
             if(!Directory.Exists(path)){
-                return;
+                return false;
             }
             string dataFileName = path + "/" + fileName+".data";
             string idxFileName = path+"/"+fileName+".idx";
@@ -61,6 +57,7 @@ namespace AVLTree{
                 }
                 await appendToStream("]", idxFS, offset);
             }
+            return true;
         } 
 
         private async static Task<long> appendToStream(string inputStr, FileStream fs, long offset){
@@ -79,7 +76,7 @@ namespace AVLTree{
             return JsonSerializer.SerializeToUtf8Bytes<T>(obj);
         }
 
-        public async static Task<AVL<TKey, TValue>> deserializeKV(string dir, string fileName){
+        public async static Task<AVL<TKey, TValue>?> deserializeKV(string dir, string fileName){
             if(!Directory.Exists(dir)) {
                 return null;
             }
@@ -104,7 +101,8 @@ namespace AVLTree{
                     byte[] buffer = new byte[length];
                     await dataFS.ReadAsync(buffer, 0, length);
                     var obj = deserializeSingleKV(buffer); 
-                    avlTree.Insert(obj.k,obj.v);
+                    if(obj != null)
+                        avlTree.Insert(obj.k,obj.v);
                 }
             }
             return avlTree;
@@ -115,12 +113,12 @@ namespace AVLTree{
             var obj = JsonSerializer.Deserialize<IndexEntry<TKey>[]>(jsonReadOnlySpan)!;
             return obj;
         }
-        private static MyKeyValue<TKey,TValue> deserializeSingleKV(byte[] buffer){
+        private static MyKeyValue<TKey,TValue>? deserializeSingleKV(byte[] buffer){
             Utf8JsonReader utf8Reader = new Utf8JsonReader(buffer);
             return JsonSerializer.Deserialize<MyKeyValue<TKey,TValue>>(ref utf8Reader);
         }
 
-        public static T deserializeSingleObj<T>(byte[] buffer){
+        public static T? deserializeSingleObj<T>(byte[] buffer){
             Utf8JsonReader utf8Reader = new Utf8JsonReader(buffer);
             return JsonSerializer.Deserialize<T>(ref utf8Reader);
         }

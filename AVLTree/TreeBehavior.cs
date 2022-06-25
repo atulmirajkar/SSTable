@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace AVLTree
+﻿namespace AVLTree
 {
     class Treebehavior
     {
@@ -25,9 +21,12 @@ namespace AVLTree
             }
 
             Console.WriteLine("serialization");
-            SerializeUtil<int, int>.serializeKV(tree,"./data","one");
+            await SerializeUtil<int, int>.serializeKV(tree,"./data","one");
 
-            AVL<int,int> deserialTree = await SerializeUtil<int, int>.deserializeKV("./data","one");
+            AVL<int,int>? deserialTree = await SerializeUtil<int, int>.deserializeKV("./data","one");
+            if(deserialTree==null)
+                return;
+                
             foreach(KeyValuePair<int, int> kv in deserialTree){
                 Console.WriteLine(kv.Key+":"+kv.Value);
             }
