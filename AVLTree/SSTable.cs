@@ -10,5 +10,8 @@ namespace AVLTree
 
         private string filePath{get; set;}
 
+        //deserialize sstable from disk
+        
+        //serialize sstable to disk
     }
 }

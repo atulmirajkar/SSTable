@@ -101,7 +101,6 @@ namespace AVLTree{
                 foreach(IndexEntry<TKey> idxEntry in idxArr){
                     var offset = idxEntry.v.o;
                     var length = idxEntry.v.l;
-
                     byte[] buffer = new byte[length];
                     await dataFS.ReadAsync(buffer, 0, length);
                     var obj = deserializeSingleKV(buffer); 
