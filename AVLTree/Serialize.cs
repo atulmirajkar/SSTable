@@ -108,6 +108,37 @@ namespace AVLTree{
             return avlTree;
         }
 
+        public async static Task<List<MyKeyValue<TKey, TValue>>?> deserializeKVList(string dir, string fileName){
+            if(!Directory.Exists(dir)) {
+                return null;
+            }
+
+            string dataFile= dir + "/" + fileName+".data";
+            if(!File.Exists(dataFile)){
+                return null;
+            }
+
+            string idxFile = dir + "/" + fileName + ".idx";
+            if(!File.Exists(idxFile)){
+                return null;
+            }
+            List<MyKeyValue<TKey, TValue>> result = new List<MyKeyValue<TKey, TValue>>(); 
+            //foreach value in index
+                //read data
+            IndexEntry<TKey>[] idxArr = deserializeIdx(idxFile);
+            using(FileStream dataFS = File.OpenRead(dataFile)){
+                foreach(IndexEntry<TKey> idxEntry in idxArr){
+                    var offset = idxEntry.v.o;
+                    var length = idxEntry.v.l;
+                    byte[] buffer = new byte[length];
+                    await dataFS.ReadAsync(buffer, 0, length);
+                    var obj = deserializeSingleKV(buffer); 
+                    if(obj != null)
+                        result.Add(new MyKeyValue<TKey, TValue>(obj.k,obj.v));
+                }
+            }
+            return result;
+        }
         private static IndexEntry<TKey>[] deserializeIdx(string fileName){
             ReadOnlySpan<byte> jsonReadOnlySpan = File.ReadAllBytes(fileName);
             var obj = JsonSerializer.Deserialize<IndexEntry<TKey>[]>(jsonReadOnlySpan)!;

@@ -21,7 +21,22 @@ namespace AVLTree
         }
 
         public bool put(TKey key, TValue value){
-            return avlTree.Insert(key, value)!=null;
+            if(avlTree.Insert(key, value) == null)
+            {
+                return false;
+            }
+            if(minKey == null){
+                minKey = key;
+            } else if(key.CompareTo(minKey)<0){
+                minKey = key;
+            }
+            if(maxKey == null){
+                maxKey = key;
+            } else if(key.CompareTo(maxKey)>0){
+                maxKey = key;
+            }
+
+            return true;
         }
 
         public async Task<bool> serialize(){
