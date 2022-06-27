@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text;
 using Model;
 
+
+//todo move this to a util project, or remame Model project to util and keep both model.cs and util files in that project
 namespace AVLTree{
     public class SerializeUtil<TKey, TValue> where TKey: IComparable{
         public async static Task<bool> serializeKV(AVL<TKey, TValue> avlObj,string path, string fileName){
@@ -139,6 +141,46 @@ namespace AVLTree{
             }
             return result;
         }
+
+        public static async Task<MyKeyValue<TKey, TValue>?> deserializeKVForIndex(string dir, string fileName, IndexValue indexValue){
+            if(!Directory.Exists(dir)) {
+                return null;
+            }
+
+            string dataFile= dir + "/" + fileName+".data";
+            if(!File.Exists(dataFile)){
+                return null;
+            }
+            using(FileStream dataFS = File.OpenRead(dataFile)){
+                var offset = indexValue.o;
+                var length = indexValue.l;
+                byte[] buffer = new byte[length];
+                dataFS.Seek(offset,SeekOrigin.Begin);
+                await dataFS.ReadAsync(buffer, 0, length);
+                return deserializeSingleKV(buffer); 
+            }
+        }
+        public static List<IndexEntry<TKey>>? deserializeKIList(string dir, string fileName){
+            if(!Directory.Exists(dir)) {
+                return null;
+            }
+
+            string dataFile= dir + "/" + fileName+".data";
+            if(!File.Exists(dataFile)){
+                return null;
+            }
+
+            string idxFile = dir + "/" + fileName + ".idx";
+            if(!File.Exists(idxFile)){
+                return null;
+            }
+            List<MyKeyValue<TKey, TValue>> result = new List<MyKeyValue<TKey, TValue>>(); 
+            //foreach value in index
+                //read data
+            IndexEntry<TKey>[] idxArr = deserializeIdx(idxFile);
+            return idxArr.ToList();
+        }
+        //todo convert to async
         private static IndexEntry<TKey>[] deserializeIdx(string fileName){
             ReadOnlySpan<byte> jsonReadOnlySpan = File.ReadAllBytes(fileName);
             var obj = JsonSerializer.Deserialize<IndexEntry<TKey>[]>(jsonReadOnlySpan)!;

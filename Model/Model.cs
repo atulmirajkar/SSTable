@@ -35,4 +35,15 @@ namespace Model
             v = value;
         }
     }
+
+    [Serializable]
+    public class LevelMetaData<TKey> where TKey:IComparable{
+       //level num
+       public int n{get; set;}
+       //min key
+       public TKey? minK{get; set;} 
+       //max key
+       public TKey? maxK{get; set;} 
+
+    }
 }
