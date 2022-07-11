@@ -19,7 +19,7 @@ namespace Table
         private DynamicClass dynamicClass { get; set; }
 
         //todo  - creating memtable
-        private List<MemTable<string, Dictionary<string, string>>> memTableList { get; set; }
+        private List<MemTable<ConcreteKey, Dictionary<string, string>>>? memTableList { get; set; }
         private Table(string path, string tableName, string primaryKey, ColumnType columnType)
         {
             this.path = path;
@@ -105,33 +105,20 @@ namespace Table
             {
                 return;
             }
-            // Type? myValueType = dynamicClass.CreateType();
-            // if (myValueType == null)
-            // {
-            //     return;
-            // }
-            // Object? obj = Activator.CreateInstance(myValueType) as Object;
-            // foreach (var kv in map)
-            // {
-            //     if (kv.Key == primaryKey)
-            //         continue;
-            //     PropertyInfo? pi = myValueType.GetProperty(kv.Key);
-            //     //todo correctly convert to type and then setvalue
-            //     pi?.SetValue(obj, kv.Value);
-            // }
             Type? primaryKeyType = ModelUtil.getRuntimeType(pkColumnType);
             if (primaryKeyType == null)
                 return;
 
-            MemTable<string, Dictionary<string, string>>? memTable = null;
+            MemTable<ConcreteKey, Dictionary<string, string>>? memTable = null;
             if (memTableList == null)
             {
-                memTable = createMemTable(1, path + "/" + tableName);
+                memTable = createMemTable(1, path + "/" + tableName,primaryKeyType);
                 if (memTable == null)
                 {
                     return;
                 }
-                //memTableList.Add(memTable);
+                memTableList = createMemTableList();
+                memTableList?.Add(memTable);
             }
             else
             {
@@ -141,23 +128,20 @@ namespace Table
             {
                 return;
             }
-            memTable.put(map[primaryKey], map);
+            memTable.put(new ConcreteKey(map[primaryKey], primaryKeyType), map);
         }
-        public static dynamic Cast(dynamic source, Type dest)
+        public static List<MemTable<ConcreteKey, Dictionary<string, string>>>? createMemTableList()
         {
-            return Convert.ChangeType(source, dest);
+            var memTableType = typeof(List<>);
+            var constructedType = memTableType.MakeGenericType(typeof(MemTable<ConcreteKey, Dictionary<string,string>>));
+            return (List<MemTable<ConcreteKey, Dictionary<string, string>>>?)Activator.CreateInstance(constructedType);
         }
-        public static List<MemTable<string, Object>>? createMemTableList(Type type)
-        {
-            var memTableType = typeof(List<MemTable<string, Object>>);
-            var constructedType = memTableType.MakeGenericType(type);
-            return (List<MemTable<string, Object>>?)Activator.CreateInstance(constructedType);
-        }
-        public static MemTable<string, Dictionary<string, string>>? createMemTable(int tableNum, string path)
+        public static MemTable<ConcreteKey, Dictionary<string, string>>? createMemTable(int tableNum, string path, Type? keyType)
         {
             var memTableType = typeof(MemTable<,>);
-            var constructedType = memTableType.MakeGenericType(typeof(string), typeof(Dictionary<string, string>));
-            return (MemTable<string, Dictionary<string, string>>?)Activator.CreateInstance(constructedType, tableNum, path);
+            var constructedType = memTableType.MakeGenericType(typeof(ConcreteKey), typeof(Dictionary<string, string>));
+
+            return (MemTable<ConcreteKey, Dictionary<string, string>>?)Activator.CreateInstance(constructedType, tableNum, path);
         }
     }
 }

@@ -23,7 +23,8 @@ namespace Model
         }
     }
 
-    public interface IMyValue{
+    public interface IMyValue
+    {
         //empty interface
     }
     public class MyKeyValue<TKey, TValue>
@@ -99,4 +100,50 @@ namespace Model
             this.columnList = columnList;
         }
     }
+
+    public class ConcreteKey : IComparable
+    {
+        public Type keyType { get; set; }
+        public string key { get; set; }
+
+        public ConcreteKey(string key, Type keyType)
+        {
+            this.key = key;
+            this.keyType = keyType;
+        }
+        public int CompareTo(ConcreteKey? other)
+        {
+            if (keyType == typeof(int))
+            {
+                var currObj = Convert.ToInt32(key);
+                var otherObj = Convert.ToInt32(other?.key);
+                return currObj.CompareTo(otherObj);
+            }
+            else if (keyType == typeof(string))
+            {
+                key.CompareTo(other?.key);
+            }
+            else if (keyType == typeof(Int64))
+            {
+                var currObj = Convert.ToInt32(key);
+                var otherObj = Convert.ToInt32(other?.key);
+                return currObj.CompareTo(otherObj);
+            }
+            else if (keyType == typeof(Guid))
+            {
+                var currObj = Guid.Parse(key);
+                var otherObj = Guid.Parse(other?.key);
+                return currObj.CompareTo(otherObj);
+            }
+            //what to return if error
+            return 1;
+        }
+
+        public int CompareTo(object? obj)
+        {
+            var otherObj= obj as ConcreteKey;
+            return this.CompareTo(otherObj);
+        }
+    }
+
 }
