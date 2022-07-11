@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Utility;
 using AVLTree;
 using Model;
 namespace Level{
@@ -37,7 +38,7 @@ namespace Level{
                 using(FileStream fs = new FileStream(mdFile, FileMode.CreateNew)){
                     //serialize md object
                     //todo move serializeObj api to a different class, we dont need TKey and TValue generics for this
-                    byte[] buffer = SerializeUtil<TKey,TValue>.serializeObj<LevelMetaData<TKey>>(mdObj);        
+                    byte[] buffer = SerializeUtil.serializeObj<LevelMetaData<TKey>>(mdObj);        
                     fs.WriteAsync(buffer, 0, buffer.Length);
                 }
             } catch(Exception e){

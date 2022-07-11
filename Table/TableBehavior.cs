@@ -1,13 +1,18 @@
-﻿
-using System;
+﻿using System.Threading.Tasks;
 
-namespace Table// Note: actual namespace depends on the project name.
+namespace Table
 {
     internal class Program
     {
-        static void Main(string[] args)
+        async static Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Table? table = await Table.createTable("/Users/atulmirajkar/data", "testTable", "ID",Model.ColumnType.Int32);
+            if(table == null){
+                return;
+            }
+
+            await table.AddColumn("Value", Model.ColumnType.Varchar);
+            table.Add(@"{""ID"":""123"",""value"":""sdklfj""}");
         }
     }
 }

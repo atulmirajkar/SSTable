@@ -1,11 +1,10 @@
 using System.Text.Json;
-using System.Text;
 using Model;
+using Utility;
 
-
-//todo move this to a util project, or remame Model project to util and keep both model.cs and util files in that project
 namespace AVLTree{
-    public class SerializeUtil<TKey, TValue> where TKey: IComparable{
+    
+    public static class SerializeUtil<TKey, TValue> where TKey: IComparable{
         public async static Task<bool> serializeKV(AVL<TKey, TValue> avlObj,string path, string fileName){
             if(string.IsNullOrEmpty(fileName)){
                 return false;
@@ -48,34 +47,23 @@ namespace AVLTree{
 
             using(FileStream idxFS = File.Create(idxFileName)){
                 long offset = 0;
-                offset = await appendToStream("[", idxFS, offset);
+                offset = await SerializeUtil.appendToStream("[", idxFS, offset);
                 for(int i=0; i<idxList.Count;i++){
                     byte[] data = JsonSerializer.SerializeToUtf8Bytes(idxList[i]);
                     idxFS.Seek(offset, SeekOrigin.Begin);
                     await idxFS.WriteAsync(data,0,data.Length);
                     offset+= data.Length;
                     if(i!=idxList.Count-1)
-                        offset = await appendToStream(",", idxFS, offset);
+                        offset = await SerializeUtil.appendToStream(",", idxFS, offset);
                 }
-                await appendToStream("]", idxFS, offset);
+                await SerializeUtil.appendToStream("]", idxFS, offset);
             }
             return true;
         } 
 
-        private async static Task<long> appendToStream(string inputStr, FileStream fs, long offset){
-                byte[] startBytes= Encoding.UTF8.GetBytes(inputStr);
-                await fs.WriteAsync(startBytes,0,startBytes.Length);
-                offset += startBytes.Length;
-                return offset;
-        }
-
         public static byte[] serializeSingleKV<T1,T2>(T1 key, T2 value){
             MyKeyValue<T1, T2> customKV = new MyKeyValue<T1, T2>(key, value);
             return JsonSerializer.SerializeToUtf8Bytes<MyKeyValue<T1,T2>>(customKV);
-        }
-
-        public static byte[] serializeObj<T>(T obj){
-            return JsonSerializer.SerializeToUtf8Bytes<T>(obj);
         }
 
         public async static Task<AVL<TKey, TValue>?> deserializeKV(string dir, string fileName){
@@ -191,10 +179,5 @@ namespace AVLTree{
             return JsonSerializer.Deserialize<MyKeyValue<TKey,TValue>>(ref utf8Reader);
         }
 
-        public static T? deserializeSingleObj<T>(byte[] buffer){
-            Utf8JsonReader utf8Reader = new Utf8JsonReader(buffer);
-            return JsonSerializer.Deserialize<T>(ref utf8Reader);
-        }
     }
-
 }
