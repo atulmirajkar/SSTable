@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AVLTree;
@@ -37,16 +38,16 @@ namespace Table
             {
                 return null;
             }
-            string dirName = path + "/" + tableName;
-            if (Directory.Exists(dirName))
+            string dirName = Path.Combine(path, tableName);
+            if (!Directory.Exists(dirName))
             {
-                return null;
+                Directory.CreateDirectory(dirName);
             }
-            Directory.CreateDirectory(path);
+
             var columnList = new List<Tuple<string, ColumnType>>();
             columnList.Add(Tuple.Create(primaryKey, columnType));
             TableMetaData tObj = new TableMetaData(primaryKey, columnType, columnList);
-            string mdFile = dirName + "/" + "Table.md";
+            string mdFile = Path.Combine(dirName, "Table.md");
             await serializeTableMD(tObj, mdFile);
             return new Table(path, tableName, primaryKey, columnType);
         }
@@ -72,16 +73,16 @@ namespace Table
                 columnList.Add(Tuple.Create(kv.Key, kv.Value));
             }
             TableMetaData tObj = new TableMetaData(primaryKey, columnType, columnList);
-            string mdFile = this.path + "/" + this.tableName + "/" + "Table.md";
+            string mdFile = Path.Combine(this.path, this.tableName);
+            mdFile = Path.Combine(mdFile, "Table.md");
             await serializeTableMD(tObj, mdFile);
         }
         //todo deserialize 
-        private static async Task serializeTableMD(TableMetaData tObj, string dirName)
+        private static async Task serializeTableMD(TableMetaData tObj, string fileName)
         {
             try
             {
-                string mdFile = dirName + "/" + "Table.md";
-                using (FileStream fs = new FileStream(mdFile, FileMode.CreateNew))
+                using (FileStream fs = File.Create(fileName))
                 {
                     //serialize md object
                     //int, int template is not required below. Need to refactor SerializeUtil.
@@ -92,13 +93,14 @@ namespace Table
             catch (Exception e)
             {
                 //todo implement logger
+                Console.WriteLine("Something went wrong." + e?.ToString());
             }
         }
 
         //public
         //accept value as a json
         //{key1:value1, key2: value2}
-        public void Add(string jsonString)
+        public async void Add(string jsonString)
         {
             Dictionary<string, string>? map = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
             if (map == null)
@@ -112,7 +114,7 @@ namespace Table
             MemTable<ConcreteKey, Dictionary<string, string>>? memTable = null;
             if (memTableList == null)
             {
-                memTable = createMemTable(1, path + "/" + tableName,primaryKeyType);
+                memTable = createMemTable(1, Path.Combine(path, tableName), primaryKeyType);
                 if (memTable == null)
                 {
                     return;
@@ -129,11 +131,51 @@ namespace Table
                 return;
             }
             memTable.put(new ConcreteKey(map[primaryKey], primaryKeyType), map);
+            await memTable.serialize();
+        }
+
+        public string Get(string jsonString)
+        {
+            if(memTableList == null || memTableList.Count==0){
+                return "";
+            }
+            Dictionary<string, string>? req = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonString);
+            if (req == null || !req.ContainsKey(primaryKey))
+            {
+                return "";
+            }
+            Type? pkType = ModelUtil.getRuntimeType(pkColumnType);
+            if(pkType==null){
+                return "";
+            }
+            ConcreteKey ck = new ConcreteKey(req[primaryKey], pkType);
+            for(int i=memTableList.Count-1; i>=0; i--){
+                MyKeyValue<ConcreteKey, Dictionary<string, string>>? kv = memTableList[i].get(ck);
+                if(kv!=null){
+                    return JsonSerializer.Serialize(kv.v);
+                }
+            }
+            return "";
+        }
+
+        public string Scan(){
+            if(memTableList == null || memTableList.Count == 0){
+                return "";
+            }
+            
+            StringBuilder sb = new StringBuilder();
+            for(int i=memTableList.Count-1; i>=0; i--){
+                List<Dictionary<string, string>> rowList = memTableList[i].scan();
+                sb.Append(JsonSerializer.Serialize(rowList));
+                if(i>0)
+                    sb.Append(",");
+            }
+            return sb.ToString();
         }
         public static List<MemTable<ConcreteKey, Dictionary<string, string>>>? createMemTableList()
         {
             var memTableType = typeof(List<>);
-            var constructedType = memTableType.MakeGenericType(typeof(MemTable<ConcreteKey, Dictionary<string,string>>));
+            var constructedType = memTableType.MakeGenericType(typeof(MemTable<ConcreteKey, Dictionary<string, string>>));
             return (List<MemTable<ConcreteKey, Dictionary<string, string>>>?)Activator.CreateInstance(constructedType);
         }
         public static MemTable<ConcreteKey, Dictionary<string, string>>? createMemTable(int tableNum, string path, Type? keyType)
