@@ -333,6 +333,7 @@ namespace AVLTree
             return inorder(root).GetEnumerator();
         }
 
+        //todo - where is this used - can we remove this?
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("r", root, typeof(Node));

@@ -7,7 +7,7 @@ using Model;
 namespace Level{
     public class Level<TKey,TValue> where TKey:IComparable{
         private int levelNum{get; set;}
-        private TKey? minKey{get; set;}        
+        private TKey? minKey{get; set;}
         private TKey? maxKey{get; set;}
 
         private string path{get; set;} 
@@ -24,7 +24,7 @@ namespace Level{
                 return null;
             }
             try{
-                string dirName = path +"/" + levelNum.ToString(); 
+                string dirName = Path.Combine(path , levelNum.ToString());
                 if(Directory.Exists(dirName))
                 {
                     return null;
@@ -34,11 +34,11 @@ namespace Level{
                 LevelMetaData<TKey> mdObj = new LevelMetaData<TKey>{
                     n=levelNum,
                 };
-                string mdFile = dirName + "/" + levelNum.ToString() + ".md"; 
+                string mdFile = Path.Combine(dirName , levelNum.ToString());
+                mdFile = Path.Combine(mdFile,".md");
                 using(FileStream fs = new FileStream(mdFile, FileMode.CreateNew)){
                     //serialize md object
-                    //todo move serializeObj api to a different class, we dont need TKey and TValue generics for this
-                    byte[] buffer = SerializeUtil.serializeObj<LevelMetaData<TKey>>(mdObj);        
+                    byte[] buffer = SerializeUtil.serializeObj<LevelMetaData<TKey>>(mdObj);
                     fs.WriteAsync(buffer, 0, buffer.Length);
                 }
             } catch(Exception e){

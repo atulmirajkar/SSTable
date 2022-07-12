@@ -1,4 +1,6 @@
 using System.Reflection.Emit;
+using System.Text.Json.Serialization;
+
 namespace Model
 {
     public static class ModelUtil
@@ -21,11 +23,30 @@ namespace Model
             }
             return null;
         }
+
+        // public static string serializeType(Type inputType){
+        //     string? result = null;
+        //     if(typeof(string) == inputType){
+        //         result =  Enum.GetName(typeof(ColumnType), ColumnType.Varchar);
+        //     } else if(typeof(int) == inputType){
+        //         result =  Enum.GetName(typeof(ColumnType), ColumnType.Int32);
+        //     } else if(typeof(Int64) == inputType){
+        //         result =  Enum.GetName(typeof(ColumnType), ColumnType.Int64);
+        //     } else if(typeof(Guid) == inputType){
+        //         result =  Enum.GetName(typeof(ColumnType), ColumnType.UUID);
+        //     } else if(typeof(bool) == inputType){
+        //         result =  Enum.GetName(typeof(ColumnType), ColumnType.Boolean);
+        //     } 
+        //     return result != null? result : "";
+        // }
     }
 
-    public interface IMyValue
-    {
-        //empty interface
+    public interface GenericTable<TKey, TValue>{
+        public Task<MyKeyValue<TKey, TValue>?> get(TKey key);
+        public Task<bool> put(TKey key, TValue value);
+        public Task<List<TValue>?> scan();
+
+        public bool IsFull(long maxSize);
     }
     public class MyKeyValue<TKey, TValue>
     {
@@ -86,23 +107,27 @@ namespace Model
         Int32,
         Int64,
         UUID,
-        Boolean
+        Boolean   // cannot be keytype
     }
 
-    [Serializable]
+
     public class TableMetaData
     {
-        public List<Tuple<string, ColumnType>> columnList;
-        public string primaryKey;
+        public List<Tuple<string, ColumnType>> columnList { get; set; }
+        public string primaryKey { get; set; }
+        private ColumnType pkColumnType { get; set; }
         public TableMetaData(string primaryKey, ColumnType columnType, List<Tuple<string, ColumnType>> columnList)
         {
             this.primaryKey = primaryKey;
             this.columnList = columnList;
+            this.pkColumnType = columnType;
         }
     }
 
+
     public class ConcreteKey : IComparable
     {
+        [JsonIgnore]
         public Type keyType { get; set; }
         public string key { get; set; }
 
@@ -132,7 +157,11 @@ namespace Model
             else if (keyType == typeof(Guid))
             {
                 var currObj = Guid.Parse(key);
-                var otherObj = Guid.Parse(other?.key);
+                Guid otherObj = Guid.Empty;
+                if (other != null)
+                {
+                    otherObj = Guid.Parse(other.key);
+                }
                 return currObj.CompareTo(otherObj);
             }
             //what to return if error
@@ -141,8 +170,21 @@ namespace Model
 
         public int CompareTo(object? obj)
         {
-            var otherObj= obj as ConcreteKey;
+            var otherObj = obj as ConcreteKey;
             return this.CompareTo(otherObj);
+        }
+
+
+    }
+
+    public class GetModel
+    {
+        public string columnName { get; set; }
+        public string columnValue { get; set; }
+        public GetModel(string columnName, string columnValue)
+        {
+            this.columnName = columnName;
+            this.columnValue = columnValue;
         }
     }
 
